@@ -1,3 +1,13 @@
+# env
 .env
+
+# python cache
 __pycache__/
+**/__pycache__/
 *.pyc
+
+# OS
+.DS_Store
+
+# logs
+*.log
