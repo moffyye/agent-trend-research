@@ -1,7 +1,17 @@
 from pydantic import BaseModel
-from agents import Agent, ModelSettings, TResponseInputItem, Runner, RunConfig, trace
+from agents import WebSearchTool,Agent, ModelSettings, TResponseInputItem, Runner, RunConfig, trace
 
-
+# Tool definitions
+web_search_preview = WebSearchTool(
+  user_location={
+    "type": "approximate",
+    "country": None,
+    "region": None,
+    "city": None,
+    "timezone": None
+  },
+  search_context_size="medium"
+)
 
 class NodeDOpenSourceBuilderSignalSchema(BaseModel):
     summary: str | None = None
@@ -11,28 +21,93 @@ class NodeDOpenSourceBuilderSignalSchema(BaseModel):
 
 node_a_research_trend_analyzer = Agent(
     name="Node A - Research Trend Analyzer",
-    instructions="""Find AI research trends in the last 30 days...""",
+    instructions="""
+    Find AI research trends in the last 30 days.
+    
+    Focus on:
+    - arXiv
+    - conference announcements
+    - research lab blogs
+
+    Return:
+    - top 5 research trends
+    - 1-2 concrete examples for each trends and release data and brief of the paper 
+    - author of the most cited papers in these top 5 research trends
+    - list 5 companies that authors are afflicated to 
+    - why each trend appears to be rising now
+    """,
     model="gpt-4.1",
+    tools=[
+    web_search_preview
+    ],
     model_settings=ModelSettings(temperature=1, top_p=1, max_tokens=2048, store=True),
 )
 
 nodeb_lab_industry_signal = Agent(
     name="NodeB - Lab / Industry Signal",
-    instructions="""Analyze latest work from top AI labs...""",
+    instructions="""
+    You are analyzing VC and startup activity in AI in the last 30 days.
+
+    Task:
+    - Analyze AI startup funding, venture activity, notable rounds, acquisitions, and investor behavior
+    from the 30 days immediately preceding.
+    - Do not use June 2024 or any other assumed system knowledge date.
+    
+    Output:
+    - 5 to 10 key investment signals
+    - notable companies / rounds
+    - recurring themes
+    - investor sentiment
+    - short bottom-line summary
+    """,
+
     model="gpt-4.1",
+    tools=[
+    web_search_preview
+    ],
     model_settings=ModelSettings(temperature=1, top_p=1, max_tokens=2048, store=True),
 )
 
 node_c_vc_investment_signal = Agent(
     name="Node C — VC / Investment Signal",
-    instructions="""Analyze recent AI startup and VC activity...""",
+    instructions=f"""
+    Analyze recent AI startup and VC activity in the last 30 days.
+
+    Identify:
+    - sectors receiving repeated investment
+    - themes across multiple funds
+    - new categories forming
+
+    Output:
+    - top 5 investment trends
+    - example startup types
+    - maturity (early / scaling)
+    """,
     model="gpt-4.1",
+    tools=[
+    web_search_preview
+    ],
     model_settings=ModelSettings(temperature=1, top_p=1, max_tokens=2048, store=True),
 )
 
 node_d_open_source_builder_signal = Agent(
     name="Node D — Open Source / Builder Signal",
-    instructions="""Analyze trending AI open-source projects...""",
+    instructions=f"""
+    Analyze trending AI open-source projects in the last 30 days.
+
+    Focus on:
+    - GitHub trending
+    - HuggingFace models
+    - developer tools gaining traction
+
+    Output:
+    - top trending tools or frameworks
+    - what problem they solve
+    - growth signals (stars, adoption)
+    """,
+    tools=[
+    web_search_preview
+    ],
     model="gpt-4.1",
     output_type=NodeDOpenSourceBuilderSignalSchema,
     model_settings=ModelSettings(temperature=1, top_p=1, max_tokens=2048, store=True),

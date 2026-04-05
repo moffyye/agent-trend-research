@@ -17,5 +17,6 @@ def health():
 
 @app.post("/agent/run")
 async def agent_run(req: RunRequest):
+    print(req.input)
     result = await run_agent(req.input, req.user_id)
     return result

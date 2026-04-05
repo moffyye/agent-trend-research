@@ -1,3 +1,5 @@
 fastapi
 uvicorn
 openai-agents
+python-docx
+python-dotenv
